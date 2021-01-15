@@ -1,13 +1,16 @@
+ ;プロセッサとコンフィグレーションビットの指定
  list p=pic16f84a
   #include "p16f84a.inc"
   __CONFIG _HS_OSC & _WDT_OFF & _PWRTE_ON & _CP_OFF
 
-numcnt equ h'f6'
-numint equ h'01'
-numcol equ h'08'
-num250 equ h'fa'
-numadd equ h'13'
+;定数の設定
+numcnt equ h'f6' ;タイマ0のカウンタに設定する値(タイマ０割り込み間隔Ti=(256-numcnt)×0.1024[ms])
+numint equ h'01' ;タイマ０割り込み回数(LED１列の表示間隔Tl=Ti×numint[ms])
+numcol equ h'08' ;LEDの列数(ダイナミック点灯間隔Td=Tl×numcol[ms])
+num250 equ h'fa' ;割り込みカウンタ(250回)
+numadd equ h'13' ;adrptnに加算する最大値
  
+;表示パターン設定
 ptn1	equ b'00000000'
 ptn2	equ b'00001000'
 ptn3	equ b'01001010'
@@ -34,6 +37,7 @@ ptn23	equ b'00100000'
 ptn24	equ b'00011100'
 ptn25	equ b'00000000'
  
+;変数のアドレス設定
 cntint equ h'20'
 cntcol equ h'21'
 cnt250 equ h'22'
@@ -69,176 +73,206 @@ adr23 equ h'46'
 adr24 equ h'47'
 adr25 equ h'48'
 
-  org 0
-  goto main
+;プログラムの開始
+  org 0 ;リセットベクタ
+  goto main ;ラベルmainへジャンプ
 
-  org 4
-  goto tmr
+  org 4 ;割り込みベクタ
+  goto tmr ;ラベルtmrへジャンプ
 
 main
-  bsf STATUS,RP0
-  movlw h'87'
-  movwf OPTION_REG
-  clrf TRISA
-  clrf TRISB
-  bcf STATUS,RP0
+  ;入出力ポートとタイマ0の設定
+  bsf STATUS,RP0 ;STATUSレジスタのPR0ビットの設定(バンク0からバンク１への切り替え)
+  movlw h'87' ;OPTIONレジスタをh'87'に設定
+  movwf OPTION_REG ;タイマ0の１カウント=0.4×256[μs]=0.1024[ms]
+  clrf TRISA ;TRISAレジスタのクリア
+  clrf TRISB ;TRISBレジスタのクリア
+  bcf STATUS,RP0 ;STATUSレジスタのPR0ビットの設定
 
-  clrf PORTA
-  clrf PORTB
+  ;出力の初期化
+  clrf PORTA ;PORTAレジスタのクリア
+  clrf PORTB ;PORTBレジスタのクリア
 
 loop0
-  movlw ptn1
-  movwf adr1
-  movlw ptn2
-  movwf adr2
-  movlw ptn3
-  movwf adr3
-  movlw ptn4
-  movwf adr4
-  movlw ptn5
-  movwf adr5
-  movlw ptn6
-  movwf adr6
-  movlw ptn7
-  movwf adr7
-  movlw ptn8
-  movwf adr8
-  movlw ptn9
-  movwf adr9
-  movlw ptn10
-  movwf adr10
-  movlw ptn11
-  movwf adr11
-  movlw ptn12
-  movwf adr12
-  movlw ptn13
-  movwf adr13
-  movlw ptn14
-  movwf adr14
-  movlw ptn15
-  movwf adr15
-  movlw ptn16
-  movwf adr16
-  movlw ptn17
-  movwf adr17
-  movlw ptn18
-  movwf adr18
-  movlw ptn19
-  movwf adr19
-  movlw ptn20
-  movwf adr20
-  movlw ptn21
-  movwf adr21
-  movlw ptn22
-  movwf adr22
-  movlw ptn23
-  movwf adr23
-  movlw ptn24
-  movwf adr24
-  movlw ptn25
-  movwf adr25
+  movlw ptn1 ;表示パターン1をWレジスタへ格納
+  movwf adr1 ;Wレジスタの値を変数adr1へ格納
+  movlw ptn2 ;表示パターン2をWレジスタへ格納
+  movwf adr2 ;Wレジスタの値を変数adr2へ格納
+  movlw ptn3 ;表示パターン3をWレジスタへ格納
+  movwf adr3 ;Wレジスタの値を変数adr3へ格納
+  movlw ptn4 ;表示パターン4をWレジスタへ格納
+  movwf adr4 ;Wレジスタの値を変数adr4へ格納
+  movlw ptn5 ;表示パターン5をWレジスタへ格納
+  movwf adr5 ;Wレジスタの値を変数adr5へ格納
+  movlw ptn6 ;表示パターン6をWレジスタへ格納
+  movwf adr6 ;Wレジスタの値を変数adr6へ格納
+  movlw ptn7 ;表示パターン7をWレジスタへ格納
+  movwf adr7 ;Wレジスタの値を変数adr7へ格納
+  movlw ptn8 ;表示パターン8をWレジスタへ格納
+  movwf adr8 ;Wレジスタの値を変数adr8へ格納
+  movlw ptn9 ;表示パターン9をWレジスタへ格納
+  movwf adr9 ;Wレジスタの値を変数adr9へ格納
+  movlw ptn10 ;表示パターン10をWレジスタへ格納
+  movwf adr10 ;Wレジスタの値を変数adr10へ格納
+  movlw ptn11 ;表示パターン11をWレジスタへ格納
+  movwf adr11 ;Wレジスタの値を変数adr11へ格納
+  movlw ptn12 ;表示パターン12をWレジスタへ格納
+  movwf adr12 ;Wレジスタの値を変数adr12へ格納
+  movlw ptn13 ;表示パターン13をWレジスタへ格納
+  movwf adr13 ;Wレジスタの値を変数adr13へ格納
+  movlw ptn14 ;表示パターン14をWレジスタへ格納
+  movwf adr14 ;Wレジスタの値を変数adr14へ格納
+  movlw ptn15 ;表示パターン15をWレジスタへ格納
+  movwf adr15 ;Wレジスタの値を変数adr15へ格納
+  movlw ptn16 ;表示パターン16をWレジスタへ格納
+  movwf adr16 ;Wレジスタの値を変数adr16へ格納
+  movlw ptn17 ;表示パターン17をWレジスタへ格納
+  movwf adr17 ;Wレジスタの値を変数adr17へ格納
+  movlw ptn18 ;表示パターン18をWレジスタへ格納
+  movwf adr18 ;Wレジスタの値を変数adr18へ格納
+  movlw ptn19 ;表示パターン19をWレジスタへ格納
+  movwf adr19 ;Wレジスタの値を変数adr19へ格納
+  movlw ptn20 ;表示パターン20をWレジスタへ格納
+  movwf adr20 ;Wレジスタの値を変数adr20へ格納
+  movlw ptn21 ;表示パターン21をWレジスタへ格納
+  movwf adr21 ;Wレジスタの値を変数adr21へ格納
+  movlw ptn22 ;表示パターン22をWレジスタへ格納
+  movwf adr22 ;Wレジスタの値を変数adr22へ格納
+  movlw ptn23 ;表示パターン23をWレジスタへ格納
+  movwf adr23 ;Wレジスタの値を変数adr23へ格納
+  movlw ptn24 ;表示パターン24をWレジスタへ格納
+  movwf adr24 ;Wレジスタの値を変数adr24へ格納
+  movlw ptn25 ;表示パターン25をWレジスタへ格納
+  movwf adr25 ;Wレジスタの値を変数adr25へ格納
 
-  movlw numint
-  movwf cntint
+  ;割り込み回数用カウンタの初期化
+  movlw numint ;割り込み回数をWレジスタへ格納
+  movwf cntint ;Wレジスタの値を変数cntintへ格納
 
-  movlw numcol
-  movwf cntcol
+  movlw numcol ;LEDの列数をWレジスタへ格納
+  movwf cntcol ;Wレジスタの値を変数adrptnへ格納
   
-  movlw num250
-  movwf cnt250
-  movlw numadd
-  movwf cntadd
+  movlw num250 ;タイマ０割り込みを繰り返す回数をWレジスタへ格納
+  movwf cnt250 ;Wレジスタの値を変数cnt250に格納
+  movlw numadd ;adrptnに加算する最大値をWレジスタへ格納
+  movwf cntadd ;Wレジスタの値を変数cntaddへ格納
   
-  clrf adrcol
-  clrf n
-  clrf m
+  clrf adrcol ;変数adrcolのクリア
+  clrf n ;nのクリア
+  clrf m ;mのクリア
 
-  movlw adr1
-  movwf adrptn
+  ;表示パターンのアドレスの初期化
+  movlw adr1 ;表示パターンの先頭アドレスをWレジスタへ格納
+  movwf adrptn ;Wレジスタの値をadrptnへ格納
   
-  movlw numcnt
-  movwf TMR0
+  ;タイマ０カウンタの初期化
+  movlw numcnt ;タイマ0のカウンタに設定する値をWレジスタへ格納
+  movwf TMR0 ;Wレジスタの値をTMR0レジスタへ格納
   
-  bsf INTCON,T0IE
-  bsf INTCON,GIE
+  ;割り込み許可の設定
+  bsf INTCON,T0IE ;INTCONレジスタのTOIEビットの設定(タイマ０割り込みの許可)
+  bsf INTCON,GIE ;INTCONレジスタのGIEビットの設定(全割り込みの許可)
 
-  call setled
+  ;LEDの設定
+  call setled ;サブルーチンsetledの呼び出し
 
 loop
-  goto loop
+  ;割り込み待ちループ
+  goto loop ;ラベルloopへジャンプ
 
 tmr
-  bcf INTCON,T0IF
+  ;割り込みの設定
+  bcf INTCON,T0IF ;INTCONレジスタのTOIFビットの設定(タイマ０割り込みフラグのクリア)
 
-  movlw numcnt
-  movwf TMR0
+  ;タイマ0のカウンタの初期化
+  movlw numcnt ;タイマ0のカウンタに設定する値をWレジスタへ格納
+  movwf TMR0 ;Wレジスタの値をTMR0レジスタへ格納
 
-  decfsz cntint,F
-  goto tmr_ret
+  decfsz cntint,F ;変数cntintの値から1減算して変数cntintへ格納
+  goto tmr_ret ;変数cntintの値が0でなければラベルtmr_retへジャンプ
 
-  movlw numint
-  movwf cntint
+  movlw numint ;割り込み回数をWレジスタへ格納
+  movwf cntint ;Wレジスタの値を変数cntintへ格納
   
-  call setled
-  decfsz cnt250,F
-  goto tmr_ret
-  call add_n
+  call setled ;サブルーチンsetledの呼び出し
+
+  decfsz cnt250,F ;変数cnt250の値から1減算して変数cnt250へ格納
+  goto tmr_ret ;変数cntintの値が0出なければラベルtmr_retへジャンプ
+  call add_n ;サブルーチンadd_nの呼び出し
 
 tmr_ret
-  retfie
+  retfie ;割り込みからの復帰
 
+;サブルーチンsetled(LED設定サブルーチン)
 setled
-  clrf PORTB
+  ;LEDの初期化
+  clrf PORTB ;PORTBレジスタのクリア
 
-  movf adrcol,W
-  movwf PORTA
+  ;ポートAの出力の設定
+  movf adrcol,W ;変数adrcolをWレジスタへ格納
+  movwf PORTA ;Wレジスタの値をPORTAレジスタへ格納
 
-  movf adrptn,W
-  movwf FSR
-  movf INDF,W
+  ;間接アドレッシングによるデータの読み込み
+  movf adrptn,W ;変数adrptnをWレジスタへ格納
+  movwf FSR ;Wレジスタの値をFSRレジスタへ格納(間接アドレッシング用アドレスの設定)
+  movf INDF,W ;INDFレジスタの値をWレジスタへ格納(FSRレジスタが指すアドレスの内容の読み込み)
 
-  movwf PORTB
+  movwf PORTB ;Wレジスタの値をPORTBレジスタへ格納
 
-  decfsz cntcol,F
-  goto setled_adr
+  decfsz cntcol,F ;変数cntcolの値から1減算して変数cntcolへ格納
+  goto setled_adr ;変数cntcolの値が0でなければラベルsetled_adrへジャンプ
 
-  movlw numcol
-  movwf cntcol
+  ;列数用カウンタの初期化
+  movlw numcol ;LEDの列数をWレジスタへ格納
+  movwf cntcol ;Wレジスタの値を変数cntcolへ格納
 
-  clrf adrcol
+  clrf adrcol ;変数adrcolのクリア
 
-  movlw adr1
-  movwf adrptn
-  movf n,W
-  movwf m
-  call addloop
+  ;adrptnの初期化
+  movlw adr1 ;表示パターンの先頭アドレスをWレジスタへ格納
+  movwf adrptn ;Wレジスタの値を変数adrptnへ格納
+
+  ;nの値をmにコピー
+  movf n,W ;変数nをWレジスタへ格納
+  movwf m ;Wレジスタの値を変数mに格納
+
+  ;adrptnにnを加算
+  call addloop ;サブルーチンaddloopの呼び出し
 
 setled_ret
-  return
+  return ;サブルーチンからの復帰
 
 setled_adr
-  incf adrcol,F
-  incf adrptn,F
-  goto setled_ret
+  ;表示するLEDの列のアドレスの更新
+  incf adrcol,F ;変数adrcolの値を1加算して変数adrcolへ格納
+
+  ;表示パターンのアドレスの更新
+  incf adrptn,F ;変数adrptnの値を1加算して変数adrptnへ格納
+  goto setled_ret ;ラベルsetled_retへジャンプ
 
 add_n
-  incf n,F
-  decfsz cntadd,F
-  return
-  movlw num250
-  movwf cnt250
-  movlw numadd
-  movwf cntadd
-  clrf n
-  return
+  ;割り込みが250回繰り返されるたびにnに1加算
+  incf n,F ;変数nの値を1加算して変数nへ格納
+  decfsz cntadd,F ;変数cntaddの値を1減算して変数cntaddへ格納
+  return ;変数cntaddの値が0でなければサブルーチンからの復帰
+
+  ;割り込みカウンタ、adrptn加算に関する値を初期化
+  movlw num250 ;割り込みカウンタ(250回)をWレジスタに格納
+  movwf cnt250 ;Wレジスタの値を変数cnt250に格納
+  movlw numadd ;adrptnに加算する最大値をWレジスタに格納
+  movwf cntadd ;Wレジスタの値を変数cntaddに格納
+  clrf n ;nのクリア
+  return ;サブルーチンからの復帰
   
 loop_add
-  decfsz m,F
-  goto add
-  return
+  ;n回addを繰り返す
+  decfsz m,F ;変数mの値を1減算して変数mへ格納
+  goto add ;ラベルaddへジャンプ
+  return ;サブルーチンからの復帰
   
+;adrptnにn加算(n回1加算)
 add
-  incf adrptn,F
-  goto loop_add
+  incf adrptn,F ;変数adrptnの値を1加算して変数adrcolへ格納
+  goto loop_add ;ラベルloop_addへジャンプ
 
-  end
+  end ;プログラムの終了
